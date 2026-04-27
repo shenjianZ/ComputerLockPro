@@ -57,7 +57,7 @@ export function ShieldPage() {
   async function lockWhenBluetoothLeaves() {
     try {
       const result = await systemGuardService.lockIfBluetoothMissing();
-      toast(result.message, "info");
+      toast(result.message, result.success ? "info" : "warning");
     } catch (e) {
       toast(String(e), "error");
     }

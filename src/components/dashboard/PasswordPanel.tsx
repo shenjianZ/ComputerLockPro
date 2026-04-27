@@ -1,10 +1,10 @@
 import { useState } from "react";
-import type { PasswordStatus, SetupPasswordResult } from "../../types";
+import type { PasswordActionResult, PasswordStatus, SetupPasswordResult } from "../../types";
 
 interface PasswordPanelProps {
   status: PasswordStatus | null;
   onSetup: (password: string) => Promise<SetupPasswordResult>;
-  onChange: (oldPassword: string, newPassword: string) => Promise<string>;
+  onChange: (oldPassword: string, newPassword: string) => Promise<PasswordActionResult>;
   onReset: (recoveryCode: string, newPassword: string) => Promise<SetupPasswordResult>;
   onToast: (message: string, type?: "success" | "error" | "warning" | "info") => void;
 }
@@ -68,10 +68,14 @@ export function PasswordPanel({ status, onSetup, onChange, onReset, onToast }: P
       return;
     }
     try {
-      const msg = await onChange(oldPassword, newPassword);
+      const result = await onChange(oldPassword, newPassword);
+      if (!result.success) {
+        onToast(result.message, "error");
+        return;
+      }
       setOldPassword("");
       setNewPassword("");
-      onToast(msg, "success");
+      onToast(result.message, "success");
     } catch (e) {
       onToast(String(e), "error");
     }

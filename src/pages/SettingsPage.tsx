@@ -3,10 +3,11 @@ import { PasswordPanel, SettingsPanel } from "../components";
 import { useToast } from "../components/common";
 import { passwordService, powerService, settingsService } from "../services";
 import type { AppSettings, PasswordStatus, SetupPasswordResult } from "../types";
+import { applyTheme } from "../utils";
 
 export function SettingsPage() {
   const { toast } = useToast();
-  const [settings, setSettings] = useState<AppSettings | null>(null);
+  const [settings, setSettings] = useState<AppSettings | null>(() => settingsService.getCachedSettings());
   const [passwordStatus, setPasswordStatus] = useState<PasswordStatus | null>(null);
 
   async function refresh() {
@@ -31,7 +32,9 @@ export function SettingsPage() {
   }
 
   async function updateSettings(next: AppSettings) {
-    setSettings(await settingsService.updateSettings(next));
+    const saved = await settingsService.updateSettings(next);
+    applyTheme(saved.theme);
+    setSettings(saved);
   }
 
   async function setupPassword(password: string): Promise<SetupPasswordResult> {
@@ -43,7 +46,7 @@ export function SettingsPage() {
   async function changePassword(oldPassword: string, newPassword: string) {
     const result = await passwordService.change(oldPassword, newPassword);
     await refresh();
-    return result.message;
+    return result;
   }
 
   async function resetPassword(recoveryCode: string, newPassword: string) {

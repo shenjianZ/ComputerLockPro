@@ -75,7 +75,7 @@ cargo test
 数据库文件位于用户家目录：
 
 ```text
-~/.computer_lock_pro/computer_lock.sqlite
+~/.computer-lock-pro/computer-lock.db
 ```
 
 当前数据库表：

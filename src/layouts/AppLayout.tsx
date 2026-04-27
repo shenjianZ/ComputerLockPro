@@ -44,13 +44,6 @@ export function AppLayout({ children, activeRoute, onNavigate }: AppLayoutProps)
       </header>
       <div className="app-body">
         <aside className="sidebar">
-          <div className="brand">
-            <span className="brand-mark">CL</span>
-            <div>
-              <strong>ComputerLock</strong>
-              <p>桌面安全 · 专注管理</p>
-            </div>
-          </div>
           {routeItems.map((item) => (
             <button
               className={activeRoute === item.id ? "nav-item active" : "nav-item"}

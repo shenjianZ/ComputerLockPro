@@ -22,10 +22,6 @@ pub struct LockService;
 impl LockService {
     pub async fn lock(app: &AppHandle, state: &AppRuntimeState, mode: LockMode) -> Result<LockSession> {
         let stored = SettingsService::get_or_create(&state.db).await?;
-        if stored.password_hash.is_none() {
-            anyhow::bail!("请先设置锁屏密码");
-        }
-
         let all_displays = stored.app.multi_display_enabled
             && stored.app.multi_display_strategy != "primary";
         windows::input_guard::start_lock_keyboard_guard()?;

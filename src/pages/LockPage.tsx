@@ -1,21 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
 import { LockPanel, StatusCards } from "../components";
 import { useToast } from "../components/common";
-import { appService, lockService, passwordService } from "../services";
-import type { AppStatus, LockMode, PasswordStatus } from "../types";
+import { appService, lockService } from "../services";
+import type { AppStatus, LockMode } from "../types";
 
 export function LockPage() {
   const { toast } = useToast();
-  const [status, setStatus] = useState<AppStatus | null>(null);
-  const [passwordStatus, setPasswordStatus] = useState<PasswordStatus | null>(null);
+  const [status, setStatus] = useState<AppStatus | null>(() => appService.getCachedStatus());
 
   const refresh = useCallback(async () => {
-    const [nextStatus, nextPasswordStatus] = await Promise.all([
-      appService.getStatus(),
-      passwordService.getStatus(),
-    ]);
-    setStatus(nextStatus);
-    setPasswordStatus(nextPasswordStatus);
+    setStatus(await appService.getStatus());
   }, []);
 
   async function lock(mode: LockMode) {
@@ -50,7 +44,7 @@ export function LockPage() {
     <>
       <LockPanel
         onLock={lock}
-        disabled={status?.isLocked || !passwordStatus?.passwordSet}
+        disabled={status?.isLocked}
       />
       <StatusCards status={status} />
     </>

@@ -38,14 +38,16 @@ select {
 }
 
 .app-shell {
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   background: #f3f1fc;
+  overflow: hidden;
 }
 
 .app-titlebar {
   height: 36px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -101,6 +103,7 @@ select {
   display: grid;
   grid-template-columns: 210px 1fr;
   background: #f3f1fc;
+  overflow: hidden;
 }
 
 .sidebar {
@@ -162,15 +165,24 @@ select {
 
 .workspace {
   min-width: 0;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
 
 .content {
+  flex: 1;
+  min-height: 0;
   padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  overflow: auto;
+  scrollbar-width: none;
+}
+
+.content::-webkit-scrollbar {
+  display: none;
 }
 
 .page-heading {
@@ -388,11 +400,11 @@ button:disabled {
 }
 
 .switch-root {
-  width: 46px;
-  height: 26px;
+  width: 36px;
+  height: 20px;
   border: 0;
   border-radius: 999px;
-  padding: 3px;
+  padding: 2px;
   background: #d7d2e7;
 }
 
@@ -402,15 +414,15 @@ button:disabled {
 
 .switch-thumb {
   display: block;
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   border-radius: 999px;
   background: white;
   transition: transform 160ms ease;
 }
 
 .switch-root[data-state="checked"] .switch-thumb {
-  transform: translateX(20px);
+  transform: translateX(16px);
 }
 
 .lock-overlay {
@@ -464,6 +476,23 @@ button:disabled {
   border-radius: 8px;
   color: #f8fbff;
   background: rgba(13, 23, 38, 0.92);
+}
+
+.unlock-entry {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  min-height: 32px;
+  padding: 0 10px;
+  color: rgba(248, 251, 255, 0);
+  background: rgba(13, 23, 38, 0);
+  transition: color 120ms ease, background 120ms ease;
+}
+
+.unlock-entry:hover,
+.unlock-entry:focus-visible {
+  color: #f8fbff;
+  background: rgba(13, 23, 38, 0.68);
 }
 
 .unlock-box input {
@@ -694,4 +723,119 @@ button:disabled {
   .eyebrow {
     color: #a78bfa;
   }
+}
+
+html.theme-light {
+  color: #17152a;
+  background: #f2f0fb;
+}
+
+html.theme-light .app-shell,
+html.theme-light .app-titlebar,
+html.theme-light .app-body,
+html.theme-light .workspace {
+  background: #f3f1fc;
+}
+
+html.theme-light .sidebar,
+html.theme-light .app-titlebar,
+html.theme-light .panel,
+html.theme-light .status-card {
+  border-color: #e4e0ef;
+  background: #ffffff;
+}
+
+html.theme-light input,
+html.theme-light select {
+  border-color: #d8d2e8;
+  background: #ffffff;
+  color: #17152a;
+}
+
+html.theme-light .nav-item {
+  color: #626071;
+}
+
+html.theme-light .nav-item:hover,
+html.theme-light .nav-item.active {
+  color: #17152a;
+  background: #f0eff2;
+}
+
+html.theme-light .hero-copy,
+html.theme-light .muted,
+html.theme-light .toggle-row p,
+html.theme-light .event-item p {
+  color: #777487;
+}
+
+html.theme-light .toast-item {
+  background: #ffffff;
+  border-color: #e4e0ef;
+  color: #17152a;
+}
+
+html.theme-dark {
+  color: #f8fbff;
+  background: #0f172a;
+}
+
+html.theme-dark .app-shell,
+html.theme-dark .app-titlebar,
+html.theme-dark .app-body,
+html.theme-dark .workspace {
+  background: #0f172a;
+}
+
+html.theme-dark .sidebar,
+html.theme-dark .panel,
+html.theme-dark .status-card {
+  border-color: #263449;
+  background: #111827;
+}
+
+html.theme-dark .app-titlebar {
+  border-bottom-color: #263449;
+}
+
+html.theme-dark .nav-item {
+  color: #94a3b8;
+}
+
+html.theme-dark .nav-item:hover,
+html.theme-dark .nav-item.active {
+  color: #f8fbff;
+  background: #1e293b;
+}
+
+html.theme-dark input,
+html.theme-dark select {
+  border-color: #334155;
+  background: #1e293b;
+  color: #f8fbff;
+}
+
+html.theme-dark .hero-copy,
+html.theme-dark .muted,
+html.theme-dark .toggle-row p,
+html.theme-dark .event-item p {
+  color: #94a3b8;
+}
+
+html.theme-dark .switch-root {
+  background: #334155;
+}
+
+html.theme-dark .switch-root[data-state="checked"] {
+  background: #8b5cf6;
+}
+
+html.theme-dark .toast-item {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f8fbff;
+}
+
+html.theme-dark .eyebrow {
+  color: #a78bfa;
 }

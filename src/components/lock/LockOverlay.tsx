@@ -30,12 +30,20 @@ function getOverlayStyle(mode: LockMode | null | undefined, wallpaperPath?: stri
 export function LockOverlay({ visible, message, mode, wallpaperPath, onUnlock, onUsbUnlock }: LockOverlayProps) {
   const [password, setPassword] = useState("");
   const [unlocking, setUnlocking] = useState(false);
+  const [showUnlockBox, setShowUnlockBox] = useState(false);
   const [time, setTime] = useState(new Date());
 
   useEffect(() => {
     const timer = window.setInterval(() => setTime(new Date()), 1000);
     return () => window.clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    if (!visible) {
+      setShowUnlockBox(false);
+      setPassword("");
+    }
+  }, [visible]);
 
   if (!visible) return null;
 
@@ -73,30 +81,37 @@ export function LockOverlay({ visible, message, mode, wallpaperPath, onUnlock, o
           <span>{time.toLocaleDateString()}</span>
         </div>
       )}
-      <form className="unlock-box" onSubmit={handleSubmit}>
-        <KeyRound size={24} />
-        <h2>ComputerLock Pro</h2>
-        <p style={isError ? { color: "#f87171", fontSize: 13 } : { fontSize: 13 }}>
-          {message || "输入锁屏密码解锁"}
-        </p>
-        <input
-          autoFocus
-          type="password"
-          value={password}
-          onChange={(event) => setPassword(event.currentTarget.value)}
-          placeholder="解锁密码"
-          disabled={unlocking}
-        />
-        <button type="submit" disabled={unlocking || !password.trim()}>
-          {unlocking ? "验证中..." : "解锁"}
+      {!showUnlockBox && (
+        <button type="button" className="unlock-entry" onClick={() => setShowUnlockBox(true)}>
+          解锁
         </button>
-        {onUsbUnlock && (
-          <button type="button" onClick={handleUsbUnlock} disabled={unlocking} style={{ background: "#374151" }}>
-            <Usb size={14} />
-            USB Key 解锁
+      )}
+      {showUnlockBox && (
+        <form className="unlock-box" onSubmit={handleSubmit}>
+          <KeyRound size={24} />
+          <h2>ComputerLock Pro</h2>
+          <p style={isError ? { color: "#f87171", fontSize: 13 } : { fontSize: 13 }}>
+            {message || "输入锁屏密码解锁"}
+          </p>
+          <input
+            autoFocus
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.currentTarget.value)}
+            placeholder="解锁密码"
+            disabled={unlocking}
+          />
+          <button type="submit" disabled={unlocking || !password.trim()}>
+            {unlocking ? "验证中..." : "解锁"}
           </button>
-        )}
-      </form>
+          {onUsbUnlock && (
+            <button type="button" onClick={handleUsbUnlock} disabled={unlocking} style={{ background: "#374151" }}>
+              <Usb size={14} />
+              USB Key 解锁
+            </button>
+          )}
+        </form>
+      )}
     </div>
   );
 }

@@ -24,23 +24,31 @@ export function SettingsPanel({
   }
 
   async function pickWallpaper() {
-    const selected = await open({
-      multiple: false,
-      filters: [{ name: "图片", extensions: ["png", "jpg", "jpeg", "bmp", "webp"] }],
-    });
-    if (selected) {
-      patchSettings({ wallpaperPath: selected as string });
+    try {
+      const selected = await open({
+        multiple: false,
+        filters: [{ name: "图片", extensions: ["png", "jpg", "jpeg", "bmp", "webp"] }],
+      });
+      if (selected) {
+        patchSettings({ wallpaperPath: selected as string });
+      }
+    } catch (error) {
+      toast(`选择壁纸失败：${error}`, "error");
     }
   }
 
   async function pickUsbKey() {
-    const selected = await open({
-      multiple: false,
-      filters: [{ name: "密钥文件", extensions: ["key", "txt", "*"] }],
-    });
-    if (selected) {
-      patchSettings({ usbKeyPath: selected as string });
-      toast("USB Key 路径已更新", "success");
+    try {
+      const selected = await open({
+        multiple: false,
+        filters: [{ name: "密钥文件", extensions: ["key", "txt", "*"] }],
+      });
+      if (selected) {
+        patchSettings({ usbKeyPath: selected as string });
+        toast("USB Key 路径已更新", "success");
+      }
+    } catch (error) {
+      toast(`选择 USB Key 失败：${error}`, "error");
     }
   }
 
@@ -94,8 +102,8 @@ export function SettingsPanel({
             <input
               style={{ flex: 1 }}
               value={settings?.wallpaperPath ?? ""}
-              onChange={(event) => patchSettings({ wallpaperPath: event.currentTarget.value || null })}
-              placeholder="选择或输入壁纸图片路径"
+              readOnly
+              placeholder="选择壁纸图片路径"
             />
             <button type="button" onClick={pickWallpaper} style={{ flexShrink: 0 }}>
               <FolderOpen size={14} />

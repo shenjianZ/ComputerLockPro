@@ -34,7 +34,18 @@ pub fn run() {
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {
                 api.prevent_close();
-                let _ = window.hide();
+                if window.label().starts_with("lock-screen-") {
+                    let _ = window.set_always_on_top(true);
+                    let _ = window.set_focus();
+                } else {
+                    let _ = window.hide();
+                }
+            }
+            if let tauri::WindowEvent::Focused(false) = event {
+                if window.label().starts_with("lock-screen-") {
+                    let _ = window.set_always_on_top(true);
+                    let _ = window.set_focus();
+                }
             }
         })
         .setup(|app| {

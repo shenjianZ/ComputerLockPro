@@ -14,14 +14,26 @@ pub struct SettingsService;
 impl SettingsService {
     pub async fn get_or_create(pool: &SqlitePool) -> Result<StoredSettings> {
         if let Some(mut settings) = SettingsRepository::get(pool).await? {
+            if settings.password_hash.is_none() {
+                let recovery_code = PasswordService::recovery_code();
+                settings.password_hash = Some(PasswordService::hash(crate::config::DEFAULT_PASSWORD)?);
+                settings.recovery_code_hash = Some(PasswordService::hash(&recovery_code)?);
+                settings.app.password_migration_required = true;
+                SettingsRepository::save(pool, &settings).await?;
+            }
             settings.app.password_set = settings.password_hash.is_some();
             return Ok(settings);
         }
 
+        let recovery_code = PasswordService::recovery_code();
         let stored = StoredSettings {
-            app: AppSettings::default(),
-            password_hash: None,
-            recovery_code_hash: None,
+            app: AppSettings {
+                password_set: true,
+                password_migration_required: true,
+                ..AppSettings::default()
+            },
+            password_hash: Some(PasswordService::hash(crate::config::DEFAULT_PASSWORD)?),
+            recovery_code_hash: Some(PasswordService::hash(&recovery_code)?),
         };
         SettingsRepository::save(pool, &stored).await?;
         Ok(stored)

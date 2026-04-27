@@ -5,13 +5,13 @@ mod platform {
     use anyhow::{anyhow, Result};
     use std::{
         mem::zeroed,
-        ptr::null_mut,
+        ptr::{null, null_mut},
         sync::{mpsc, Mutex, OnceLock},
         time::Duration,
     };
     use windows_sys::Win32::{
         Foundation::{LPARAM, LRESULT, WPARAM},
-        System::Threading::GetCurrentThreadId,
+        System::{LibraryLoader::GetModuleHandleW, Threading::GetCurrentThreadId},
         UI::{
             Input::KeyboardAndMouse::{
                 GetAsyncKeyState, VK_CONTROL, VK_DELETE, VK_ESCAPE, VK_F4, VK_LCONTROL, VK_LMENU,
@@ -57,7 +57,8 @@ mod platform {
 
     fn run_hook(tx: mpsc::Sender<std::result::Result<u32, String>>) {
         unsafe {
-            let hook = SetWindowsHookExW(WH_KEYBOARD_LL, Some(keyboard_proc), null_mut(), 0);
+            let module = GetModuleHandleW(null());
+            let hook = SetWindowsHookExW(WH_KEYBOARD_LL, Some(keyboard_proc), module, 0);
             if hook.is_null() {
                 let _ = tx.send(Err("无法安装锁屏快捷键拦截".to_string()));
                 return;

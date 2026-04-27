@@ -64,14 +64,17 @@ pub fn show_lock_windows(
     if count == 0 {
         let label = format!("lock-screen-{session_label}-0");
         let url = format!("index.html?lock=1&mode={}", mode_query(mode));
-        WebviewWindowBuilder::new(app, label, WebviewUrl::App(url.into()))
+        let mut builder = WebviewWindowBuilder::new(app, label, WebviewUrl::App(url.into()))
             .title("ComputerLock Pro - Lock")
             .fullscreen(true)
             .decorations(false)
             .always_on_top(true)
             .skip_taskbar(true)
-            .visible(true)
-            .build()?;
+            .visible(true);
+        if matches!(mode, LockMode::Transparent | LockMode::Blur) {
+            builder = builder.transparent(true);
+        }
+        builder.build()?;
         displays.push(LockDisplayInfo {
             index: 0,
             x: 0,
