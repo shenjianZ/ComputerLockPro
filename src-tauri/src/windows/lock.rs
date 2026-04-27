@@ -2,6 +2,8 @@ use tauri::{AppHandle, Manager, WebviewUrl, WebviewWindowBuilder};
 
 use crate::models::{dto::LockDisplayInfo, vo::LockMode};
 
+const EDGE_COVER_MARGIN: f64 = 12.0;
+
 fn mode_query(mode: &LockMode) -> &'static str {
     match mode {
         LockMode::Transparent => "Transparent",
@@ -40,8 +42,14 @@ pub fn show_lock_windows(
         let url = format!("index.html?lock=1&mode={}", mode_query(mode));
         let mut builder = WebviewWindowBuilder::new(app, label, WebviewUrl::App(url.into()))
             .title(title)
-            .position(position.x as f64, position.y as f64)
-            .inner_size(size.width as f64, size.height as f64)
+            .position(
+                position.x as f64 - EDGE_COVER_MARGIN,
+                position.y as f64 - EDGE_COVER_MARGIN,
+            )
+            .inner_size(
+                size.width as f64 + EDGE_COVER_MARGIN * 2.0,
+                size.height as f64 + EDGE_COVER_MARGIN * 2.0,
+            )
             .decorations(false)
             .resizable(false)
             .always_on_top(true)
