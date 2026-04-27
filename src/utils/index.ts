@@ -1,1 +1,1 @@
-export { isLockWindow } from "./windowMode";
+export { getLockWindowMode, isLockWindow } from "./windowMode";

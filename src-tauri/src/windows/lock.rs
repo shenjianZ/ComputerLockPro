@@ -2,12 +2,23 @@ use tauri::{AppHandle, Manager, WebviewUrl, WebviewWindowBuilder};
 
 use crate::models::{dto::LockDisplayInfo, vo::LockMode};
 
+fn mode_query(mode: &LockMode) -> &'static str {
+    match mode {
+        LockMode::Transparent => "Transparent",
+        LockMode::Black => "Black",
+        LockMode::Blur => "Blur",
+        LockMode::Wallpaper => "Wallpaper",
+        LockMode::Clock => "Clock",
+    }
+}
+
 pub fn show_lock_windows(
     app: &AppHandle,
     mode: &LockMode,
     all_displays: bool,
 ) -> tauri::Result<Vec<LockDisplayInfo>> {
     close_lock_windows(app);
+    let session_label = chrono::Utc::now().timestamp_millis();
     let mut monitors = app.available_monitors()?;
     if !all_displays && monitors.len() > 1 {
         monitors.truncate(1);
@@ -16,7 +27,7 @@ pub fn show_lock_windows(
     let mut displays = Vec::new();
 
     for (index, monitor) in monitors.iter().enumerate() {
-        let label = format!("lock-screen-{index}");
+        let label = format!("lock-screen-{session_label}-{index}");
         let position = monitor.position();
         let size = monitor.size();
         let title = match mode {
@@ -26,7 +37,8 @@ pub fn show_lock_windows(
             LockMode::Wallpaper => "ComputerLock Pro - Wallpaper",
             LockMode::Clock => "ComputerLock Pro - Clock",
         };
-        let mut builder = WebviewWindowBuilder::new(app, label, WebviewUrl::App("index.html?lock=1".into()))
+        let url = format!("index.html?lock=1&mode={}", mode_query(mode));
+        let mut builder = WebviewWindowBuilder::new(app, label, WebviewUrl::App(url.into()))
             .title(title)
             .position(position.x as f64, position.y as f64)
             .inner_size(size.width as f64, size.height as f64)
@@ -50,7 +62,9 @@ pub fn show_lock_windows(
     }
 
     if count == 0 {
-        WebviewWindowBuilder::new(app, "lock-screen-0", WebviewUrl::App("index.html?lock=1".into()))
+        let label = format!("lock-screen-{session_label}-0");
+        let url = format!("index.html?lock=1&mode={}", mode_query(mode));
+        WebviewWindowBuilder::new(app, label, WebviewUrl::App(url.into()))
             .title("ComputerLock Pro - Lock")
             .fullscreen(true)
             .decorations(false)
@@ -80,7 +94,7 @@ pub fn close_lock_windows(app: &AppHandle) {
         .collect();
     for label in labels {
         if let Some(window) = app.get_webview_window(&label) {
-            let _ = window.close();
+            let _ = window.destroy();
         }
     }
 }

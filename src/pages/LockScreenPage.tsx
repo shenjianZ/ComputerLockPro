@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { LockOverlay } from "../components";
 import { appService, lockService, settingsService } from "../services";
 import type { AppStatus, AppSettings } from "../types";
+import { getLockWindowMode } from "../utils";
 
 export function LockScreenPage() {
   const [status, setStatus] = useState<AppStatus | null>(null);
@@ -60,7 +61,7 @@ export function LockScreenPage() {
     <LockOverlay
       visible
       message={message}
-      mode={status?.activeMode}
+      mode={status?.activeMode ?? getLockWindowMode()}
       wallpaperPath={settings?.wallpaperPath}
       onUnlock={unlock}
       onUsbUnlock={unlockWithUsbKey}

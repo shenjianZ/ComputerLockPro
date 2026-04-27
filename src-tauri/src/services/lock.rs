@@ -28,7 +28,14 @@ impl LockService {
 
         let all_displays = stored.app.multi_display_enabled
             && stored.app.multi_display_strategy != "primary";
-        let displays = windows::lock::show_lock_windows(app, &mode, all_displays)?;
+        windows::input_guard::start_lock_keyboard_guard()?;
+        let displays = match windows::lock::show_lock_windows(app, &mode, all_displays) {
+            Ok(displays) => displays,
+            Err(error) => {
+                windows::input_guard::stop_lock_keyboard_guard();
+                return Err(error.into());
+            }
+        };
 
         let session = LockSession {
             session_id: Utc::now().timestamp_millis().to_string(),
@@ -104,6 +111,7 @@ impl LockService {
     async fn finish_unlock(app: &AppHandle, state: &AppRuntimeState, valid: bool) -> Result<UnlockResult> {
         if valid {
             windows::lock::close_lock_windows(app);
+            windows::input_guard::stop_lock_keyboard_guard();
             if let Some(window) = app.get_webview_window("main") {
                 let _ = window.show();
                 let _ = window.set_focus();
