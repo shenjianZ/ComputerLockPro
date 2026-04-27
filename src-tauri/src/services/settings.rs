@@ -15,13 +15,6 @@ impl SettingsService {
     pub async fn get_or_create(pool: &SqlitePool) -> Result<StoredSettings> {
         if let Some(mut settings) = SettingsRepository::get(pool).await? {
             settings.app.password_set = settings.password_hash.is_some();
-            if settings
-                .password_hash
-                .as_deref()
-                .is_some_and(|hash| PasswordService::verify(crate::config::DEFAULT_PASSWORD, hash))
-            {
-                settings.app.password_migration_required = true;
-            }
             return Ok(settings);
         }
 

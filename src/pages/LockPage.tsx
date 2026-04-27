@@ -10,8 +10,12 @@ export function LockPage() {
   const [passwordStatus, setPasswordStatus] = useState<PasswordStatus | null>(null);
 
   const refresh = useCallback(async () => {
-    setStatus(await appService.getStatus());
-    setPasswordStatus(await passwordService.getStatus());
+    const [nextStatus, nextPasswordStatus] = await Promise.all([
+      appService.getStatus(),
+      passwordService.getStatus(),
+    ]);
+    setStatus(nextStatus);
+    setPasswordStatus(nextPasswordStatus);
   }, []);
 
   async function lock(mode: LockMode) {

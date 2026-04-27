@@ -10,8 +10,12 @@ export function SettingsPage() {
   const [passwordStatus, setPasswordStatus] = useState<PasswordStatus | null>(null);
 
   async function refresh() {
-    setSettings(await settingsService.getSettings());
-    setPasswordStatus(await passwordService.getStatus());
+    const [nextSettings, nextPasswordStatus] = await Promise.all([
+      settingsService.getSettings(),
+      passwordService.getStatus(),
+    ]);
+    setSettings(nextSettings);
+    setPasswordStatus(nextPasswordStatus);
   }
 
   async function setAutostart(enabled: boolean) {
