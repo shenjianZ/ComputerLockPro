@@ -351,31 +351,42 @@ button:disabled {
   inset: 0;
   display: grid;
   place-items: center;
-  background: rgba(8, 16, 28, 0.34);
-  backdrop-filter: blur(6px);
+  background: rgba(8, 16, 28, 0.45);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
   z-index: 20;
 }
 
 .lock-overlay.mode-transparent {
-  background: rgba(8, 16, 28, 0.12);
+  background: transparent;
   backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .lock-overlay.mode-black {
   background: #030712;
   backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .lock-overlay.mode-blur {
-  background: rgba(8, 16, 28, 0.22);
-  backdrop-filter: blur(18px);
+  background: rgba(8, 16, 28, 0.18);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
 }
 
 .lock-overlay.mode-wallpaper {
-  background:
-    linear-gradient(rgba(6, 12, 23, 0.42), rgba(6, 12, 23, 0.62)),
-    url("/tauri.svg") center / 280px no-repeat,
-    linear-gradient(135deg, #164e63, #365314 55%, #7f1d1d);
+  background: rgba(8, 16, 28, 0.2);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background-size: cover;
+  background-position: center;
+}
+
+.lock-overlay.mode-clock {
+  background: rgba(8, 16, 28, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 .unlock-box {

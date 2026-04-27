@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { LockPanel, StatusCards } from "../components";
 import { useToast } from "../components/common";
 import { appService, lockService, passwordService } from "../services";
@@ -9,10 +9,10 @@ export function LockPage() {
   const [status, setStatus] = useState<AppStatus | null>(null);
   const [passwordStatus, setPasswordStatus] = useState<PasswordStatus | null>(null);
 
-  async function refresh() {
+  const refresh = useCallback(async () => {
     setStatus(await appService.getStatus());
     setPasswordStatus(await passwordService.getStatus());
-  }
+  }, []);
 
   async function lock(mode: LockMode) {
     try {
@@ -25,16 +25,22 @@ export function LockPage() {
         Clock: "时钟锁屏",
       };
       toast(`${names[mode]}已启动`, "success");
-      setTimeout(() => refresh(), 200);
     } catch (e) {
       toast(String(e), "error");
-      await refresh();
     }
   }
 
   useEffect(() => {
     refresh().catch((e) => toast(String(e), "error"));
-  }, []);
+
+    function onVisibilityChange() {
+      if (document.visibilityState === "visible") {
+        refresh();
+      }
+    }
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", onVisibilityChange);
+  }, [refresh, toast]);
 
   return (
     <>

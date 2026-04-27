@@ -35,7 +35,7 @@ pub fn show_lock_windows(
             .always_on_top(true)
             .skip_taskbar(true)
             .visible(true);
-        if matches!(mode, LockMode::Transparent) {
+        if matches!(mode, LockMode::Transparent | LockMode::Blur) {
             builder = builder.transparent(true);
         }
         builder.build()?;

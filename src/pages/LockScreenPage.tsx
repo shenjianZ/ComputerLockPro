@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { LockOverlay } from "../components";
-import { appService, lockService } from "../services";
-import type { AppStatus } from "../types";
+import { appService, lockService, settingsService } from "../services";
+import type { AppStatus, AppSettings } from "../types";
 
 export function LockScreenPage() {
   const [status, setStatus] = useState<AppStatus | null>(null);
+  const [settings, setSettings] = useState<AppSettings | null>(null);
   const [message, setMessage] = useState("");
 
   async function refresh() {
@@ -32,7 +33,19 @@ export function LockScreenPage() {
   }
 
   useEffect(() => {
-    refresh().catch((error) => setMessage(String(error)));
+    async function init() {
+      try {
+        const [appStatus, appSettings] = await Promise.all([
+          appService.getStatus(),
+          settingsService.getSettings(),
+        ]);
+        setStatus(appStatus);
+        setSettings(appSettings);
+      } catch (error) {
+        setMessage(String(error));
+      }
+    }
+    init();
   }, []);
 
   return (
@@ -40,6 +53,7 @@ export function LockScreenPage() {
       visible
       message={message}
       mode={status?.activeMode}
+      wallpaperPath={settings?.wallpaperPath}
       onUnlock={unlock}
       onUsbUnlock={unlockWithUsbKey}
     />

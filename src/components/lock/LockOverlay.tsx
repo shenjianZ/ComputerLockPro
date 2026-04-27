@@ -6,11 +6,28 @@ interface LockOverlayProps {
   visible: boolean;
   message: string;
   mode?: LockMode | null;
+  wallpaperPath?: string | null;
   onUnlock: (password: string) => Promise<void>;
   onUsbUnlock?: () => Promise<void>;
 }
 
-export function LockOverlay({ visible, message, mode, onUnlock, onUsbUnlock }: LockOverlayProps) {
+function getOverlayStyle(mode: LockMode | null | undefined, wallpaperPath?: string | null): React.CSSProperties {
+  if (mode === "Wallpaper" && wallpaperPath) {
+    return {
+      backgroundImage: `linear-gradient(rgba(6, 12, 23, 0.45), rgba(6, 12, 23, 0.65)), url('${wallpaperPath}')`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+    };
+  }
+  if (mode === "Wallpaper") {
+    return {
+      background: "linear-gradient(135deg, #164e63, #365314 55%, #7f1d1d)",
+    };
+  }
+  return {};
+}
+
+export function LockOverlay({ visible, message, mode, wallpaperPath, onUnlock, onUsbUnlock }: LockOverlayProps) {
   const [password, setPassword] = useState("");
   const [unlocking, setUnlocking] = useState(false);
   const [time, setTime] = useState(new Date());
@@ -45,10 +62,12 @@ export function LockOverlay({ visible, message, mode, onUnlock, onUsbUnlock }: L
   }
 
   const isError = message.includes("错误") || message.includes("失败") || message.includes("过多");
+  const effectiveMode = mode ?? "Transparent";
+  const overlayStyle = getOverlayStyle(effectiveMode, wallpaperPath);
 
   return (
-    <div className={`lock-overlay mode-${mode?.toLowerCase() ?? "transparent"}`}>
-      {mode === "Clock" && (
+    <div className={`lock-overlay mode-${effectiveMode.toLowerCase()}`} style={overlayStyle}>
+      {effectiveMode === "Clock" && (
         <div className="lock-clock">
           <strong>{time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</strong>
           <span>{time.toLocaleDateString()}</span>
