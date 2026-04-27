@@ -1,6 +1,6 @@
 use anyhow::Result;
 use chrono::{DateTime, Utc};
-use sqlx::{Row, SqlitePool};
+use sqlx::{sqlite::SqliteRow, Row, SqlitePool};
 
 use crate::models::{entity::LockEventEntity, vo::LockMode};
 
@@ -31,11 +31,18 @@ impl EventsRepository {
         .fetch_all(pool)
         .await?;
 
+        Self::map_rows(rows)
+    }
+
+    fn map_rows(rows: Vec<SqliteRow>) -> Result<Vec<LockEventEntity>> {
         rows.into_iter()
             .map(|row| {
                 let mode = match row.get::<Option<String>, _>("mode").as_deref() {
                     Some("Black") => Some(LockMode::Black),
                     Some("Transparent") => Some(LockMode::Transparent),
+                    Some("Blur") => Some(LockMode::Blur),
+                    Some("Wallpaper") => Some(LockMode::Wallpaper),
+                    Some("Clock") => Some(LockMode::Clock),
                     _ => None,
                 };
                 Ok(LockEventEntity {
@@ -47,5 +54,29 @@ impl EventsRepository {
                 })
             })
             .collect()
+    }
+
+    pub async fn list_filtered(
+        pool: &SqlitePool,
+        event_type: Option<String>,
+        limit: u32,
+    ) -> Result<Vec<LockEventEntity>> {
+        if let Some(event_type) = event_type.filter(|value| !value.is_empty()) {
+            let rows = sqlx::query(
+                "SELECT id, event_type, mode, message, created_at FROM lock_events WHERE event_type = ? ORDER BY id DESC LIMIT ?",
+            )
+            .bind(event_type)
+            .bind(limit.min(500))
+            .fetch_all(pool)
+            .await?;
+            return Self::map_rows(rows);
+        }
+
+        Self::list(pool, limit).await
+    }
+
+    pub async fn clear(pool: &SqlitePool) -> Result<()> {
+        sqlx::query("DELETE FROM lock_events").execute(pool).await?;
+        Ok(())
     }
 }

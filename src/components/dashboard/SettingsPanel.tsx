@@ -5,13 +5,19 @@ interface SettingsPanelProps {
   settings: AppSettings | null;
   onAutostart: (enabled: boolean) => void;
   onPreventSleep: (enabled: boolean) => void;
+  onSettingsChange: (settings: AppSettings) => void;
 }
 
 export function SettingsPanel({
   settings,
   onAutostart,
   onPreventSleep,
+  onSettingsChange,
 }: SettingsPanelProps) {
+  function patchSettings(patch: Partial<AppSettings>) {
+    if (settings) onSettingsChange({ ...settings, ...patch });
+  }
+
   return (
     <section className="panel">
       <div className="panel-heading">
@@ -30,6 +36,41 @@ export function SettingsPanel({
         checked={settings?.preventSleepEnabled ?? false}
         onCheckedChange={onPreventSleep}
       />
+      <div className="settings-grid">
+        <label className="form-stack">
+          <strong>默认锁屏模式</strong>
+          <select value={settings?.defaultLockMode ?? "Transparent"} onChange={(event) => patchSettings({ defaultLockMode: event.currentTarget.value as AppSettings["defaultLockMode"] })}>
+            <option value="Transparent">透明</option>
+            <option value="Black">黑屏</option>
+            <option value="Blur">模糊</option>
+            <option value="Wallpaper">壁纸</option>
+            <option value="Clock">时钟</option>
+          </select>
+        </label>
+        <label className="form-stack">
+          <strong>多屏策略</strong>
+          <select value={settings?.multiDisplayStrategy ?? "all"} onChange={(event) => patchSettings({ multiDisplayStrategy: event.currentTarget.value })}>
+            <option value="all">覆盖所有屏幕</option>
+            <option value="primary">仅主屏</option>
+          </select>
+        </label>
+        <label className="form-stack">
+          <strong>主题</strong>
+          <select value={settings?.theme ?? "system"} onChange={(event) => patchSettings({ theme: event.currentTarget.value })}>
+            <option value="system">跟随系统</option>
+            <option value="light">浅色</option>
+            <option value="dark">暗色</option>
+          </select>
+        </label>
+        <label className="form-stack">
+          <strong>USB Key 文件路径</strong>
+          <input value={settings?.usbKeyPath ?? ""} onChange={(event) => patchSettings({ usbKeyPath: event.currentTarget.value || null })} placeholder="例如 E:\\computerlock.key" />
+        </label>
+        <label className="form-stack">
+          <strong>蓝牙离开设备名</strong>
+          <input value={settings?.bluetoothDeviceName ?? ""} onChange={(event) => patchSettings({ bluetoothDeviceName: event.currentTarget.value || null })} placeholder="例如 我的手机" />
+        </label>
+      </div>
     </section>
   );
 }

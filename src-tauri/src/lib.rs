@@ -46,11 +46,27 @@ pub fn run() {
             commands::app::get_app_status,
             commands::settings::get_settings,
             commands::settings::update_settings,
+            commands::password::get_password_status,
+            commands::password::setup_password,
+            commands::password::change_password,
+            commands::password::reset_password_with_recovery_code,
             commands::lock::lock_screen,
             commands::lock::unlock_screen,
+            commands::lock::unlock_with_usb_key,
             commands::lock::get_lock_events,
+            commands::lock::query_lock_events,
+            commands::lock::clear_lock_events,
+            commands::lock::export_lock_events,
             commands::power::set_prevent_sleep,
-            commands::power::set_autostart
+            commands::power::set_autostart,
+            commands::power::schedule_power_action,
+            commands::power::cancel_power_action,
+            commands::system_guard::block_app,
+            commands::system_guard::set_website_block,
+            commands::system_guard::lock_system_input,
+            commands::system_guard::check_usb_key,
+            commands::system_guard::check_bluetooth_device,
+            commands::system_guard::lock_if_bluetooth_missing
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

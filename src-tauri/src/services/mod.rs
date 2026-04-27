@@ -3,3 +3,4 @@ pub mod lock;
 pub mod password;
 pub mod power;
 pub mod settings;
+pub mod system_guard;

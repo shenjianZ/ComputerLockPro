@@ -5,6 +5,9 @@ use serde::{Deserialize, Serialize};
 pub enum LockMode {
     Transparent,
     Black,
+    Blur,
+    Wallpaper,
+    Clock,
 }
 
 impl Default for LockMode {

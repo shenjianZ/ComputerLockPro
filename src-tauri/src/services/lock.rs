@@ -9,6 +9,7 @@ use crate::{
     },
     repositories::events::EventsRepository,
     services::{password::PasswordService, settings::SettingsService},
+    services::system_guard::SystemGuardService,
     state::AppRuntimeState,
     windows,
 };
@@ -17,14 +18,23 @@ pub struct LockService;
 
 impl LockService {
     pub async fn lock(app: &AppHandle, state: &AppRuntimeState, mode: LockMode) -> Result<LockSession> {
+        let stored = SettingsService::get_or_create(&state.db).await?;
+        if stored.password_hash.is_none() {
+            anyhow::bail!("请先设置锁屏密码");
+        }
+
         let mut session = LockSession {
             session_id: Utc::now().timestamp_millis().to_string(),
             mode: mode.clone(),
             started_at: Utc::now(),
             display_count: 1,
+            displays: Vec::new(),
         };
         *state.lock_session.write().await = Some(session.clone());
-        session.display_count = windows::lock::show_lock_windows(app, &mode)?;
+        let all_displays = stored.app.multi_display_enabled
+            && stored.app.multi_display_strategy != "primary";
+        session.displays = windows::lock::show_lock_windows(app, &mode, all_displays)?;
+        session.display_count = session.displays.len() as u32;
         if let Some(window) = app.get_webview_window("main") {
             let _ = window.hide();
         }
@@ -60,6 +70,15 @@ impl LockService {
             .collect())
     }
 
+    pub async fn unlock_with_usb_key(
+        app: &AppHandle,
+        state: &AppRuntimeState,
+    ) -> Result<UnlockResult> {
+        let stored = SettingsService::get_or_create(&state.db).await?;
+        let status = SystemGuardService::check_usb_key(stored.app.usb_key_path);
+        Self::finish_unlock(app, state, status.success).await
+    }
+
     async fn finish_unlock(app: &AppHandle, state: &AppRuntimeState, valid: bool) -> Result<UnlockResult> {
         if valid {
             windows::lock::close_lock_windows(app);
@@ -68,6 +87,7 @@ impl LockService {
                 let _ = window.set_focus();
             }
             *state.lock_session.write().await = None;
+            *state.unlock_failed_count.write().await = 0;
             EventsRepository::add(&state.db, "unlocked", None, "密码解锁成功").await?;
             return Ok(UnlockResult {
                 success: true,
@@ -75,10 +95,13 @@ impl LockService {
             });
         }
 
-        EventsRepository::add(&state.db, "unlock_failed", None, "密码解锁失败").await?;
+        let mut failed_count = state.unlock_failed_count.write().await;
+        *failed_count += 1;
+        let message = format!("密码解锁失败，连续错误 {} 次", *failed_count);
+        EventsRepository::add(&state.db, "unlock_failed", None, &message).await?;
         Ok(UnlockResult {
             success: false,
-            message: "密码错误".to_string(),
+            message,
         })
     }
 }

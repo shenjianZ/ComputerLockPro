@@ -6,6 +6,7 @@ use crate::models::dto::LockSession;
 pub struct AppRuntimeState {
     pub db: SqlitePool,
     pub lock_session: RwLock<Option<LockSession>>,
+    pub unlock_failed_count: RwLock<u32>,
 }
 
 impl AppRuntimeState {
@@ -13,6 +14,7 @@ impl AppRuntimeState {
         Self {
             db,
             lock_session: RwLock::new(None),
+            unlock_failed_count: RwLock::new(0),
         }
     }
 }

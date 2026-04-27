@@ -1,4 +1,4 @@
-import { MonitorOff, Shield } from "lucide-react";
+import { Clock3, Image, MonitorOff, Shield, Sparkles } from "lucide-react";
 import type { LockMode } from "../../types";
 
 interface LockPanelProps {
@@ -25,6 +25,18 @@ export function LockPanel({ onLock, disabled }: LockPanelProps) {
         <button disabled={disabled} onClick={() => onLock("Black")}>
           <MonitorOff size={18} />
           黑屏锁屏
+        </button>
+        <button disabled={disabled} onClick={() => onLock("Blur")}>
+          <Sparkles size={18} />
+          模糊锁屏
+        </button>
+        <button disabled={disabled} onClick={() => onLock("Wallpaper")}>
+          <Image size={18} />
+          壁纸锁屏
+        </button>
+        <button disabled={disabled} onClick={() => onLock("Clock")}>
+          <Clock3 size={18} />
+          时钟锁屏
         </button>
       </div>
     </section>

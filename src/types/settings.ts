@@ -5,6 +5,12 @@ export interface AppSettings {
   preventSleepEnabled: boolean;
   defaultLockMode: LockMode;
   multiDisplayEnabled: boolean;
+  multiDisplayStrategy: string;
   unlockHotkey: string;
   passwordSet: boolean;
+  passwordMigrationRequired: boolean;
+  theme: string;
+  wallpaperPath: string | null;
+  usbKeyPath: string | null;
+  bluetoothDeviceName: string | null;
 }

@@ -5,7 +5,7 @@ import type { AppStatus } from "../types";
 
 export function LockScreenPage() {
   const [status, setStatus] = useState<AppStatus | null>(null);
-  const [message, setMessage] = useState("输入密码解锁，默认密码为 123456。");
+  const [message, setMessage] = useState("输入锁屏密码解锁。");
 
   async function refresh() {
     setStatus(await appService.getStatus());
@@ -13,6 +13,12 @@ export function LockScreenPage() {
 
   async function unlock(password: string) {
     const result = await lockService.unlock(password);
+    setMessage(result.message);
+    await refresh();
+  }
+
+  async function unlockWithUsbKey() {
+    const result = await lockService.unlockWithUsbKey();
     setMessage(result.message);
     await refresh();
   }
@@ -27,6 +33,7 @@ export function LockScreenPage() {
       message={message}
       mode={status?.activeMode}
       onUnlock={unlock}
+      onUsbUnlock={unlockWithUsbKey}
     />
   );
 }

@@ -5,3 +5,9 @@ export interface PowerStatus {
 export interface AutostartStatus {
   autoStartEnabled: boolean;
 }
+
+export interface PowerScheduleResult {
+  action: string;
+  delaySeconds: number;
+  message: string;
+}
