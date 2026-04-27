@@ -20,7 +20,7 @@ export function LockPanel({ onLock, disabled }: LockPanelProps) {
       <div>
         <h2>桌面锁定</h2>
         <p className="muted" style={{ fontSize: 13 }}>
-          选择锁屏模式启动桌面保护
+          选择模式启动桌面保护 · 快捷键 Ctrl+Alt+L 锁屏 / Ctrl+Alt+U 解锁(USB Key)
         </p>
       </div>
       <div className="action-row">

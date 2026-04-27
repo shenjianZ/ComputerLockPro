@@ -1,4 +1,7 @@
+import { open } from "@tauri-apps/plugin-dialog";
+import { FolderOpen, Key } from "lucide-react";
 import { ToggleRow } from "../common";
+import { useToast } from "../common";
 import type { AppSettings } from "../../types";
 
 interface SettingsPanelProps {
@@ -14,8 +17,31 @@ export function SettingsPanel({
   onPreventSleep,
   onSettingsChange,
 }: SettingsPanelProps) {
+  const { toast } = useToast();
+
   function patchSettings(patch: Partial<AppSettings>) {
     if (settings) onSettingsChange({ ...settings, ...patch });
+  }
+
+  async function pickWallpaper() {
+    const selected = await open({
+      multiple: false,
+      filters: [{ name: "图片", extensions: ["png", "jpg", "jpeg", "bmp", "webp"] }],
+    });
+    if (selected) {
+      patchSettings({ wallpaperPath: selected as string });
+    }
+  }
+
+  async function pickUsbKey() {
+    const selected = await open({
+      multiple: false,
+      filters: [{ name: "密钥文件", extensions: ["key", "txt", "*"] }],
+    });
+    if (selected) {
+      patchSettings({ usbKeyPath: selected as string });
+      toast("USB Key 路径已更新", "success");
+    }
   }
 
   return (
@@ -62,10 +88,36 @@ export function SettingsPanel({
             <option value="dark">暗色</option>
           </select>
         </label>
-        <label className="form-stack">
+        <div className="form-stack">
+          <strong style={{ fontSize: 13 }}>壁纸路径</strong>
+          <div style={{ display: "flex", gap: 6 }}>
+            <input
+              style={{ flex: 1 }}
+              value={settings?.wallpaperPath ?? ""}
+              onChange={(event) => patchSettings({ wallpaperPath: event.currentTarget.value || null })}
+              placeholder="选择或输入壁纸图片路径"
+            />
+            <button type="button" onClick={pickWallpaper} style={{ flexShrink: 0 }}>
+              <FolderOpen size={14} />
+              浏览
+            </button>
+          </div>
+        </div>
+        <div className="form-stack">
           <strong style={{ fontSize: 13 }}>USB Key 路径</strong>
-          <input value={settings?.usbKeyPath ?? ""} onChange={(event) => patchSettings({ usbKeyPath: event.currentTarget.value || null })} placeholder="E:\\computerlock.key" />
-        </label>
+          <div style={{ display: "flex", gap: 6 }}>
+            <input
+              style={{ flex: 1 }}
+              value={settings?.usbKeyPath ?? ""}
+              onChange={(event) => patchSettings({ usbKeyPath: event.currentTarget.value || null })}
+              placeholder="选择 USB Key 文件"
+            />
+            <button type="button" onClick={pickUsbKey} style={{ flexShrink: 0 }}>
+              <Key size={14} />
+              浏览
+            </button>
+          </div>
+        </div>
         <label className="form-stack">
           <strong style={{ fontSize: 13 }}>蓝牙设备名</strong>
           <input value={settings?.bluetoothDeviceName ?? ""} onChange={(event) => patchSettings({ bluetoothDeviceName: event.currentTarget.value || null })} placeholder="例如 我的手机" />
