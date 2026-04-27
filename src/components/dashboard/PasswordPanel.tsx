@@ -6,39 +6,52 @@ interface PasswordPanelProps {
   onSetup: (password: string) => Promise<SetupPasswordResult>;
   onChange: (oldPassword: string, newPassword: string) => Promise<string>;
   onReset: (recoveryCode: string, newPassword: string) => Promise<SetupPasswordResult>;
+  onToast: (message: string, type?: "success" | "error" | "warning" | "info") => void;
 }
 
-export function PasswordPanel({ status, onSetup, onChange, onReset }: PasswordPanelProps) {
+export function PasswordPanel({ status, onSetup, onChange, onReset, onToast }: PasswordPanelProps) {
   const [password, setPassword] = useState("");
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [recoveryCode, setRecoveryCode] = useState("");
-  const [message, setMessage] = useState("");
   const [issuedCode, setIssuedCode] = useState("");
 
   async function submitSetup() {
-    const result = await onSetup(password);
-    setIssuedCode(result.recoveryCode);
-    setPassword("");
-    setMessage("密码已设置，请保存恢复码。");
+    try {
+      const result = await onSetup(password);
+      setIssuedCode(result.recoveryCode);
+      setPassword("");
+      onToast("密码已设置，请保存恢复码", "success");
+    } catch (e) {
+      onToast(String(e), "error");
+    }
   }
 
   async function submitChange() {
-    setMessage(await onChange(oldPassword, newPassword));
-    setOldPassword("");
-    setNewPassword("");
+    try {
+      const msg = await onChange(oldPassword, newPassword);
+      setOldPassword("");
+      setNewPassword("");
+      onToast(msg, "success");
+    } catch (e) {
+      onToast(String(e), "error");
+    }
   }
 
   async function submitReset() {
-    const result = await onReset(recoveryCode, newPassword);
-    setIssuedCode(result.recoveryCode);
-    setRecoveryCode("");
-    setNewPassword("");
-    setMessage("密码已重置，请保存新的恢复码。");
+    try {
+      const result = await onReset(recoveryCode, newPassword);
+      setIssuedCode(result.recoveryCode);
+      setRecoveryCode("");
+      setNewPassword("");
+      onToast("密码已重置，请保存新的恢复码", "success");
+    } catch (e) {
+      onToast(String(e), "error");
+    }
   }
 
   return (
-    <section className="panel password-panel">
+    <section className="panel">
       <div className="panel-heading">
         <p className="eyebrow">密码管理</p>
         <h2>{status?.passwordSet ? "锁屏密码已启用" : "首次设置锁屏密码"}</h2>
@@ -52,13 +65,13 @@ export function PasswordPanel({ status, onSetup, onChange, onReset }: PasswordPa
       ) : (
         <div className="settings-grid">
           <div className="form-stack">
-            <strong>修改密码</strong>
+            <strong style={{ fontSize: 13 }}>修改密码</strong>
             <input type="password" value={oldPassword} onChange={(event) => setOldPassword(event.currentTarget.value)} placeholder="当前密码" />
             <input type="password" value={newPassword} onChange={(event) => setNewPassword(event.currentTarget.value)} placeholder="新密码" />
             <button type="button" onClick={submitChange}>修改密码</button>
           </div>
           <div className="form-stack">
-            <strong>恢复码重置</strong>
+            <strong style={{ fontSize: 13 }}>恢复码重置</strong>
             <input value={recoveryCode} onChange={(event) => setRecoveryCode(event.currentTarget.value)} placeholder="本地恢复码" />
             <input type="password" value={newPassword} onChange={(event) => setNewPassword(event.currentTarget.value)} placeholder="新密码" />
             <button type="button" onClick={submitReset}>重置密码</button>
@@ -66,7 +79,6 @@ export function PasswordPanel({ status, onSetup, onChange, onReset }: PasswordPa
         </div>
       )}
       {issuedCode && <p className="recovery-code">恢复码：{issuedCode}</p>}
-      {message && <p className="muted">{message}</p>}
     </section>
   );
 }

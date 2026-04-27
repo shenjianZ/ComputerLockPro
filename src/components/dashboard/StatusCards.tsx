@@ -17,9 +17,13 @@ export function StatusCards({ status }: StatusCardsProps) {
     <section className="status-grid">
       {cards.map((card) => (
         <article className="status-card" key={card.label}>
-          <card.icon size={20} />
-          <span>{card.label}</span>
-          <strong>{card.value}</strong>
+          <span className="status-icon">
+            <card.icon size={16} />
+          </span>
+          <div className="status-body">
+            <span>{card.label}</span>
+            <strong>{card.value}</strong>
+          </div>
         </article>
       ))}
     </section>

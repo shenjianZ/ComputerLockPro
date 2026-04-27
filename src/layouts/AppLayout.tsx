@@ -25,7 +25,7 @@ export function AppLayout({ children, activeRoute, onNavigate }: AppLayoutProps)
             onClick={() => onNavigate(item.id)}
             type="button"
           >
-            <item.icon size={17} />
+            <item.icon size={15} />
             {item.label}
           </button>
         ))}

@@ -16,8 +16,8 @@ export function ToggleRow({
   return (
     <div className="toggle-row">
       <div>
-        <strong>{title}</strong>
-        <p>{description}</p>
+        <strong style={{ fontSize: 14 }}>{title}</strong>
+        <p style={{ fontSize: 12 }}>{description}</p>
       </div>
       <Switch.Root
         className="switch-root"

@@ -6,38 +6,30 @@ interface LockPanelProps {
   disabled?: boolean;
 }
 
+const MODES: { mode: LockMode; label: string; icon: typeof Shield }[] = [
+  { mode: "Transparent", label: "透明", icon: Shield },
+  { mode: "Black", label: "黑屏", icon: MonitorOff },
+  { mode: "Blur", label: "模糊", icon: Sparkles },
+  { mode: "Wallpaper", label: "壁纸", icon: Image },
+  { mode: "Clock", label: "时钟", icon: Clock3 },
+];
+
 export function LockPanel({ onLock, disabled }: LockPanelProps) {
   return (
     <section className="panel hero-panel">
       <div>
-        <p className="eyebrow">ComputerLock Pro</p>
-        <h1>桌面锁定、防误触与专注控制中心</h1>
-        <p className="hero-copy">
-          托盘常驻、快捷锁定、本地 SQLite、开机自启与日志能力已经接入，
-          首版以低权限、稳定可用为核心。
+        <h2>桌面锁定</h2>
+        <p className="muted" style={{ fontSize: 13 }}>
+          选择锁屏模式启动桌面保护
         </p>
       </div>
       <div className="action-row">
-        <button disabled={disabled} onClick={() => onLock("Transparent")}>
-          <Shield size={18} />
-          透明锁屏
-        </button>
-        <button disabled={disabled} onClick={() => onLock("Black")}>
-          <MonitorOff size={18} />
-          黑屏锁屏
-        </button>
-        <button disabled={disabled} onClick={() => onLock("Blur")}>
-          <Sparkles size={18} />
-          模糊锁屏
-        </button>
-        <button disabled={disabled} onClick={() => onLock("Wallpaper")}>
-          <Image size={18} />
-          壁纸锁屏
-        </button>
-        <button disabled={disabled} onClick={() => onLock("Clock")}>
-          <Clock3 size={18} />
-          时钟锁屏
-        </button>
+        {MODES.map(({ mode, label, icon: Icon }) => (
+          <button key={mode} disabled={disabled} onClick={() => onLock(mode)} type="button">
+            <Icon size={15} />
+            {label}
+          </button>
+        ))}
       </div>
     </section>
   );

@@ -32,10 +32,10 @@ export function EventsPanel({ events, filter, onFilter, onClear, onExport }: Eve
       <div className="event-list">
         {events.map((event) => (
           <article className="event-item" key={event.id}>
-            <Clock3 size={16} />
-            <div>
-              <strong>{event.message}</strong>
-              <p>
+            <Clock3 size={14} style={{ color: "#7c3aed", flexShrink: 0 }} />
+            <div style={{ minWidth: 0 }}>
+              <strong style={{ fontSize: 13 }}>{event.message}</strong>
+              <p style={{ fontSize: 12 }}>
                 {event.eventType}
                 {event.mode ? ` · ${event.mode}` : ""}
                 {" · "}
