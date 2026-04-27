@@ -2,15 +2,17 @@ import { useState } from "react";
 import { systemGuardService } from "../services";
 import { useToast } from "../components/common";
 
+const LOCK_DURATIONS = [10, 15, 30, 60];
+
 export function ShieldPage() {
   const { toast } = useToast();
-  const [inputGuard, setInputGuard] = useState("关闭");
-  const [processName, setProcessName] = useState("chrome.exe");
-  const [domain, setDomain] = useState("example.com");
+  const [processName, setProcessName] = useState("");
+  const [domain, setDomain] = useState("");
+  const [lockDuration, setLockDuration] = useState(15);
 
   async function lockInputNow() {
     try {
-      const result = await systemGuardService.lockInput(15);
+      const result = await systemGuardService.lockInput(lockDuration);
       toast(result.message, "success");
     } catch (e) {
       toast(String(e), "error");
@@ -18,8 +20,12 @@ export function ShieldPage() {
   }
 
   async function blockAppNow() {
+    if (!processName.trim()) {
+      toast("请输入进程名", "warning");
+      return;
+    }
     try {
-      const result = await systemGuardService.blockApp(processName);
+      const result = await systemGuardService.blockApp(processName.trim());
       toast(result.message, "success");
     } catch (e) {
       toast(String(e), "error");
@@ -27,8 +33,12 @@ export function ShieldPage() {
   }
 
   async function blockWebsiteNow(enabled: boolean) {
+    if (!domain.trim()) {
+      toast("请输入域名", "warning");
+      return;
+    }
     try {
-      const result = await systemGuardService.setWebsiteBlock(domain, enabled);
+      const result = await systemGuardService.setWebsiteBlock(domain.trim(), enabled);
       toast(result.message, enabled ? "success" : "info");
     } catch (e) {
       toast(String(e), "error");
@@ -38,7 +48,7 @@ export function ShieldPage() {
   async function checkUsbKeyNow() {
     try {
       const result = await systemGuardService.checkUsbKey();
-      toast(result.message, "info");
+      toast(result.message, result.success ? "success" : "warning");
     } catch (e) {
       toast(String(e), "error");
     }
@@ -63,23 +73,23 @@ export function ShieldPage() {
 
       <section className="panel">
         <div className="panel-heading">
-          <h2>输入控制</h2>
+          <h2>输入锁定</h2>
         </div>
         <div className="settings-grid">
-          <label className="form-stack">
-            <strong style={{ fontSize: 13 }}>键盘清洁模式</strong>
-            <select value={inputGuard} onChange={(event) => setInputGuard(event.currentTarget.value)}>
-              <option value="关闭">关闭</option>
-              <option value="仅锁键盘">仅锁键盘</option>
-              <option value="仅锁鼠标">仅锁鼠标</option>
-              <option value="禁用快捷键">禁用特定快捷键</option>
-            </select>
-          </label>
           <div className="form-stack">
-            <strong style={{ fontSize: 13 }}>系统增强</strong>
-            <p className="muted" style={{ fontSize: 12 }}>输入锁定使用 Windows BlockInput，应用限制使用 taskkill，网站限制写入 hosts 标记段。</p>
+            <strong style={{ fontSize: 13 }}>锁定时长</strong>
+            <select value={lockDuration} onChange={(event) => setLockDuration(Number(event.currentTarget.value))}>
+              {LOCK_DURATIONS.map((d) => (
+                <option key={d} value={d}>{d} 秒</option>
+              ))}
+            </select>
+            <button type="button" onClick={lockInputNow}>锁定系统输入</button>
+            <p className="muted" style={{ fontSize: 12 }}>锁定期间键盘和鼠标输入将被禁用，到时自动恢复</p>
+          </div>
+          <div className="form-stack">
+            <strong style={{ fontSize: 13 }}>设备检测</strong>
+            <p className="muted" style={{ fontSize: 12 }}>检测 USB Key 或蓝牙设备状态，用于解锁验证</p>
             <div className="action-row">
-              <button type="button" onClick={lockInputNow}>锁定输入 15s</button>
               <button type="button" onClick={checkUsbKeyNow}>检测 USB Key</button>
               <button type="button" onClick={lockWhenBluetoothLeaves}>蓝牙离开锁屏</button>
             </div>
@@ -95,15 +105,17 @@ export function ShieldPage() {
           <label className="form-stack">
             <strong style={{ fontSize: 13 }}>应用限制</strong>
             <input value={processName} onChange={(event) => setProcessName(event.currentTarget.value)} placeholder="例如 chrome.exe" />
-            <button type="button" onClick={blockAppNow}>立即限制</button>
+            <button type="button" onClick={blockAppNow} disabled={!processName.trim()}>立即限制</button>
+            <p className="muted" style={{ fontSize: 12 }}>终止指定进程，仅对正在运行的进程生效</p>
           </label>
           <label className="form-stack">
             <strong style={{ fontSize: 13 }}>网站限制</strong>
             <input value={domain} onChange={(event) => setDomain(event.currentTarget.value)} placeholder="例如 example.com" />
             <div className="action-row">
-              <button type="button" onClick={() => blockWebsiteNow(true)}>启用限制</button>
-              <button type="button" onClick={() => blockWebsiteNow(false)}>移除限制</button>
+              <button type="button" onClick={() => blockWebsiteNow(true)} disabled={!domain.trim()}>启用限制</button>
+              <button type="button" onClick={() => blockWebsiteNow(false)} disabled={!domain.trim()}>移除限制</button>
             </div>
+            <p className="muted" style={{ fontSize: 12 }}>通过修改 hosts 文件屏蔽指定网站</p>
           </label>
         </div>
       </section>

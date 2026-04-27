@@ -13,23 +13,31 @@ export function LockScreenPage() {
   }
 
   async function unlock(password: string) {
-    const result = await lockService.unlock(password);
-    if (result.success) {
-      setMessage("解锁成功");
-    } else {
-      setMessage(result.message);
+    try {
+      const result = await lockService.unlock(password);
+      if (result.success) {
+        setMessage("解锁成功");
+      } else {
+        setMessage(result.message);
+      }
+      await refresh();
+    } catch (e) {
+      setMessage(`解锁失败：${e}`);
     }
-    await refresh();
   }
 
   async function unlockWithUsbKey() {
-    const result = await lockService.unlockWithUsbKey();
-    if (result.success) {
-      setMessage("解锁成功");
-    } else {
-      setMessage(result.message);
+    try {
+      const result = await lockService.unlockWithUsbKey();
+      if (result.success) {
+        setMessage("解锁成功");
+      } else {
+        setMessage(result.message);
+      }
+      await refresh();
+    } catch (e) {
+      setMessage(`解锁失败：${e}`);
     }
-    await refresh();
   }
 
   useEffect(() => {

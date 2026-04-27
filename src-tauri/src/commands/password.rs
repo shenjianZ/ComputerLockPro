@@ -21,6 +21,7 @@ pub async fn setup_password(
     state: State<'_, AppRuntimeState>,
     password: String,
 ) -> Result<SetupPasswordResult, String> {
+    validate_password(&password)?;
     let result = SettingsService::setup_password(&state.inner().db, password)
         .await
         .map_err(|error| error.to_string())?;
@@ -34,6 +35,7 @@ pub async fn change_password(
     old_password: String,
     new_password: String,
 ) -> Result<PasswordActionResult, String> {
+    validate_password(&new_password)?;
     let result = SettingsService::change_password(&state.inner().db, old_password, new_password)
         .await
         .map_err(|error| error.to_string())?;
@@ -49,6 +51,7 @@ pub async fn reset_password_with_recovery_code(
     recovery_code: String,
     new_password: String,
 ) -> Result<SetupPasswordResult, String> {
+    validate_password(&new_password)?;
     let result = SettingsService::reset_password_with_recovery_code(
         &state.inner().db,
         recovery_code,
@@ -58,4 +61,15 @@ pub async fn reset_password_with_recovery_code(
     .map_err(|error| error.to_string())?;
     let _ = EventsRepository::add(&state.inner().db, "password_reset", None, "已使用恢复码重置密码").await;
     Ok(result)
+}
+
+fn validate_password(password: &str) -> Result<(), String> {
+    let len = password.len();
+    if len < 8 {
+        return Err("密码至少需要 8 位".to_string());
+    }
+    if len > 128 {
+        return Err("密码不能超过 128 位".to_string());
+    }
+    Ok(())
 }

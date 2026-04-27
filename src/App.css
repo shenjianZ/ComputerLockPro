@@ -528,4 +528,84 @@ button:disabled {
     border-color: #263449;
     background: #111827;
   }
+
+  .brand p {
+    color: #94a3b8;
+  }
+
+  .nav-item {
+    color: #94a3b8;
+  }
+
+  .nav-item:hover,
+  .nav-item.active {
+    color: #f8fbff;
+    background: #1e293b;
+  }
+
+  input,
+  select {
+    border-color: #334155;
+    background: #1e293b;
+    color: #f8fbff;
+  }
+
+  button {
+    background: #8b5cf6;
+  }
+
+  .hero-copy,
+  .muted,
+  .toggle-row p,
+  .event-item p {
+    color: #94a3b8;
+  }
+
+  .status-card .status-icon {
+    background: #1e293b;
+    color: #a78bfa;
+  }
+
+  .status-card span {
+    color: #94a3b8;
+  }
+
+  .toggle-row,
+  .event-item {
+    border-top-color: #1e293b;
+  }
+
+  .switch-root {
+    background: #334155;
+  }
+
+  .switch-root[data-state="checked"] {
+    background: #8b5cf6;
+  }
+
+  .export-preview {
+    border-color: #263449;
+  }
+
+  .toast-item {
+    background: #1e293b;
+    border-color: #334155;
+    color: #f8fbff;
+  }
+
+  .toast-close {
+    color: #94a3b8;
+  }
+
+  .toast-close:hover {
+    color: #f8fbff;
+  }
+
+  .warning-text {
+    color: #fbbf24;
+  }
+
+  .eyebrow {
+    color: #a78bfa;
+  }
 }
