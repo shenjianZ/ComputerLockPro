@@ -96,12 +96,20 @@ pub async fn export_lock_events(
     if format.eq_ignore_ascii_case("csv") {
         let mut csv = "id,eventType,mode,message,createdAt\n".to_string();
         for event in events {
+            let mode_str = event.mode.as_ref().map_or("", |m| match m {
+                LockMode::Transparent => "Transparent",
+                LockMode::Black => "Black",
+                LockMode::Blur => "Blur",
+                LockMode::Wallpaper => "Wallpaper",
+                LockMode::Clock => "Clock",
+            });
+            let message = event.message.replace('"', "\"\"");
             csv.push_str(&format!(
-                "{},{},{:?},{:?},{}\n",
+                "{},\"{}\",\"{}\",\"{}\",{}\n",
                 event.id,
                 event.event_type,
-                event.mode,
-                event.message,
+                mode_str,
+                message,
                 event.created_at.to_rfc3339()
             ));
         }

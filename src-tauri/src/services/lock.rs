@@ -14,6 +14,9 @@ use crate::{
     windows,
 };
 
+const MAX_UNLOCK_ATTEMPTS: u32 = 10;
+const LOCKOUT_DURATION_SECS: u64 = 30;
+
 pub struct LockService;
 
 impl LockService {
@@ -23,22 +26,24 @@ impl LockService {
             anyhow::bail!("请先设置锁屏密码");
         }
 
-        let mut session = LockSession {
+        let all_displays = stored.app.multi_display_enabled
+            && stored.app.multi_display_strategy != "primary";
+        let displays = windows::lock::show_lock_windows(app, &mode, all_displays)?;
+
+        let session = LockSession {
             session_id: Utc::now().timestamp_millis().to_string(),
             mode: mode.clone(),
             started_at: Utc::now(),
-            display_count: 1,
-            displays: Vec::new(),
+            display_count: displays.len() as u32,
+            displays,
         };
         *state.lock_session.write().await = Some(session.clone());
-        let all_displays = stored.app.multi_display_enabled
-            && stored.app.multi_display_strategy != "primary";
-        session.displays = windows::lock::show_lock_windows(app, &mode, all_displays)?;
-        session.display_count = session.displays.len() as u32;
+
         if let Some(window) = app.get_webview_window("main") {
             let _ = window.hide();
         }
-        *state.lock_session.write().await = Some(session.clone());
+
+        *state.unlock_failed_count.write().await = 0;
         EventsRepository::add(&state.db, "locked", Some(&mode), "锁屏已启动").await?;
         Ok(session)
     }
@@ -48,6 +53,23 @@ impl LockService {
         state: &AppRuntimeState,
         password: String,
     ) -> Result<UnlockResult> {
+        if password.trim().is_empty() {
+            return Ok(UnlockResult {
+                success: false,
+                message: "请输入密码".to_string(),
+            });
+        }
+
+        {
+            let failed = *state.unlock_failed_count.read().await;
+            if failed >= MAX_UNLOCK_ATTEMPTS {
+                return Ok(UnlockResult {
+                    success: false,
+                    message: format!("连续错误次数过多，请等待 {} 秒后重试", LOCKOUT_DURATION_SECS),
+                });
+            }
+        }
+
         let stored = SettingsService::get_or_create(&state.db).await?;
         let valid = stored
             .password_hash
@@ -97,7 +119,14 @@ impl LockService {
 
         let mut failed_count = state.unlock_failed_count.write().await;
         *failed_count += 1;
-        let message = format!("密码解锁失败，连续错误 {} 次", *failed_count);
+        let count = *failed_count;
+
+        let message = if count >= MAX_UNLOCK_ATTEMPTS {
+            format!("连续错误 {} 次，已临时锁定 {} 秒", count, LOCKOUT_DURATION_SECS)
+        } else {
+            format!("密码错误（{}/{}）", count, MAX_UNLOCK_ATTEMPTS)
+        };
+
         EventsRepository::add(&state.db, "unlock_failed", None, &message).await?;
         Ok(UnlockResult {
             success: false,

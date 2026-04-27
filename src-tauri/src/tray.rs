@@ -43,6 +43,5 @@ fn lock_from_tray(app: &AppHandle, mode: LockMode) {
     tauri::async_runtime::spawn(async move {
         let state: State<'_, AppRuntimeState> = app.state();
         let _ = LockService::lock(&app, state.inner(), mode).await;
-        show_main_window(&app);
     });
 }

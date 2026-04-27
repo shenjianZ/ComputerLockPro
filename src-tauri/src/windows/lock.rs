@@ -72,8 +72,14 @@ pub fn show_lock_windows(
 }
 
 pub fn close_lock_windows(app: &AppHandle) {
-    for index in 0..16 {
-        if let Some(window) = app.get_webview_window(&format!("lock-screen-{index}")) {
+    let labels: Vec<String> = app
+        .webview_windows()
+        .keys()
+        .filter(|label| label.starts_with("lock-screen-"))
+        .cloned()
+        .collect();
+    for label in labels {
+        if let Some(window) = app.get_webview_window(&label) {
             let _ = window.close();
         }
     }

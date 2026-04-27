@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
 import { LockPanel, StatusCards } from "../components";
 import { useToast } from "../components/common";
-import { appService, lockService } from "../services";
-import type { AppStatus, LockMode } from "../types";
+import { appService, lockService, passwordService } from "../services";
+import type { AppStatus, LockMode, PasswordStatus } from "../types";
 
 export function LockPage() {
   const { toast } = useToast();
   const [status, setStatus] = useState<AppStatus | null>(null);
+  const [passwordStatus, setPasswordStatus] = useState<PasswordStatus | null>(null);
 
   async function refresh() {
     setStatus(await appService.getStatus());
+    setPasswordStatus(await passwordService.getStatus());
   }
 
   async function lock(mode: LockMode) {
@@ -23,9 +25,10 @@ export function LockPage() {
         Clock: "时钟锁屏",
       };
       toast(`${names[mode]}已启动`, "success");
-      await refresh();
+      setTimeout(() => refresh(), 200);
     } catch (e) {
       toast(String(e), "error");
+      await refresh();
     }
   }
 
@@ -35,7 +38,10 @@ export function LockPage() {
 
   return (
     <>
-      <LockPanel onLock={lock} disabled={status?.isLocked} />
+      <LockPanel
+        onLock={lock}
+        disabled={status?.isLocked || !passwordStatus?.passwordSet}
+      />
       <StatusCards status={status} />
     </>
   );

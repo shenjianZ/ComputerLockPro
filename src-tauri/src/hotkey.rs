@@ -4,7 +4,7 @@ use tauri_plugin_global_shortcut::{
     Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState,
 };
 
-use crate::{models::vo::LockMode, services::lock::LockService, state::AppRuntimeState};
+use crate::{services::lock::LockService, services::settings::SettingsService, state::AppRuntimeState};
 
 pub fn init_hotkeys(app: &AppHandle) -> Result<()> {
     let lock_shortcut = Shortcut::new(Some(Modifiers::CONTROL | Modifiers::ALT), Code::KeyL);
@@ -26,6 +26,10 @@ fn lock_from_hotkey(app: &AppHandle) {
     let app = app.clone();
     tauri::async_runtime::spawn(async move {
         let state: State<'_, AppRuntimeState> = app.state();
-        let _ = LockService::lock(&app, state.inner(), LockMode::Transparent).await;
+        let mode = SettingsService::get_or_create(&state.inner().db)
+            .await
+            .map(|s| s.app.default_lock_mode)
+            .unwrap_or_default();
+        let _ = LockService::lock(&app, state.inner(), mode).await;
     });
 }

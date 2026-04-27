@@ -5,7 +5,7 @@ import type { AppStatus } from "../types";
 
 export function LockScreenPage() {
   const [status, setStatus] = useState<AppStatus | null>(null);
-  const [message, setMessage] = useState("输入锁屏密码解锁。");
+  const [message, setMessage] = useState("");
 
   async function refresh() {
     setStatus(await appService.getStatus());
@@ -13,13 +13,21 @@ export function LockScreenPage() {
 
   async function unlock(password: string) {
     const result = await lockService.unlock(password);
-    setMessage(result.message);
+    if (result.success) {
+      setMessage("解锁成功");
+    } else {
+      setMessage(result.message);
+    }
     await refresh();
   }
 
   async function unlockWithUsbKey() {
     const result = await lockService.unlockWithUsbKey();
-    setMessage(result.message);
+    if (result.success) {
+      setMessage("解锁成功");
+    } else {
+      setMessage(result.message);
+    }
     await refresh();
   }
 
