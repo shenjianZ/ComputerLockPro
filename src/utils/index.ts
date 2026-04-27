@@ -1,0 +1,1 @@
+export { isLockWindow } from "./windowMode";
