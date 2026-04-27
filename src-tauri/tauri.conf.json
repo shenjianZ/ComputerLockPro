@@ -13,10 +13,10 @@
     "windows": [
       {
         "title": "ComputerLock Pro",
-        "width": 1180,
-        "height": 760,
-        "minWidth": 980,
-        "minHeight": 680,
+        "width": 960,
+        "height": 700,
+        "minWidth": 780,
+        "minHeight": 600,
         "decorations": false
       }
     ],

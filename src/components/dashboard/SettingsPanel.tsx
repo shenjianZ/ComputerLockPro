@@ -70,9 +70,9 @@ export function SettingsPanel({
         checked={settings?.preventSleepEnabled ?? false}
         onCheckedChange={onPreventSleep}
       />
-      <div className="settings-grid" style={{ marginTop: 8 }}>
-        <label className="form-stack">
-          <strong style={{ fontSize: 13 }}>默认锁屏模式</strong>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 8 }}>
+        <label className="form-inline">
+          <strong>默认锁屏模式</strong>
           <select value={settings?.defaultLockMode ?? "Transparent"} onChange={(event) => patchSettings({ defaultLockMode: event.currentTarget.value as AppSettings["defaultLockMode"] })}>
             <option value="Transparent">透明</option>
             <option value="Black">黑屏</option>
@@ -81,15 +81,15 @@ export function SettingsPanel({
             <option value="Clock">时钟</option>
           </select>
         </label>
-        <label className="form-stack">
-          <strong style={{ fontSize: 13 }}>多屏策略</strong>
+        <label className="form-inline">
+          <strong>多屏策略</strong>
           <select value={settings?.multiDisplayStrategy ?? "all"} onChange={(event) => patchSettings({ multiDisplayStrategy: event.currentTarget.value })}>
             <option value="all">覆盖所有屏幕</option>
             <option value="primary">仅主屏</option>
           </select>
         </label>
-        <label className="form-stack">
-          <strong style={{ fontSize: 13 }}>主题</strong>
+        <label className="form-inline">
+          <strong>主题</strong>
           <select value={settings?.theme ?? "system"} onChange={(event) => patchSettings({ theme: event.currentTarget.value })}>
             <option value="system">跟随系统</option>
             <option value="light">浅色</option>
@@ -126,8 +126,8 @@ export function SettingsPanel({
             </button>
           </div>
         </div>
-        <label className="form-stack">
-          <strong style={{ fontSize: 13 }}>蓝牙设备名</strong>
+        <label className="form-inline">
+          <strong>蓝牙设备名</strong>
           <input value={settings?.bluetoothDeviceName ?? ""} onChange={(event) => patchSettings({ bluetoothDeviceName: event.currentTarget.value || null })} placeholder="例如 我的手机" />
         </label>
       </div>

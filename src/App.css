@@ -101,7 +101,7 @@ select {
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: 210px 1fr;
+  grid-template-columns: 172px 1fr;
   background: #f3f1fc;
   overflow: hidden;
 }
@@ -179,6 +179,7 @@ select {
   gap: 16px;
   overflow: auto;
   scrollbar-width: none;
+  max-width: 820px;
 }
 
 .content::-webkit-scrollbar {
@@ -356,6 +357,36 @@ button:disabled {
   grid-template-columns: minmax(0, 1fr) auto;
 }
 
+.form-inline {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 34px;
+}
+
+.form-inline > strong,
+.form-inline > span {
+  flex-shrink: 0;
+  width: 120px;
+  font-size: 13px;
+}
+
+.form-inline > select,
+.form-inline > input {
+  flex: 1;
+  min-width: 0;
+  max-width: 320px;
+}
+
+.form-inline > button {
+  flex-shrink: 0;
+}
+
+.form-inline > p {
+  flex-basis: 100%;
+  margin: 0;
+}
+
 .recovery-code,
 .warning-text {
   margin: 10px 0 0;
@@ -520,7 +551,7 @@ button:disabled {
   line-height: 1;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 700px) {
   .app-body,
   .two-column,
   .status-grid,
@@ -532,6 +563,21 @@ button:disabled {
 
   .sidebar {
     display: none;
+  }
+
+  .form-inline {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .form-inline > strong,
+  .form-inline > span {
+    width: auto;
+  }
+
+  .form-inline > select,
+  .form-inline > input {
+    max-width: none;
   }
 }
 
@@ -743,6 +789,19 @@ html.theme-light .panel,
 html.theme-light .status-card {
   border-color: #e4e0ef;
   background: #ffffff;
+}
+
+html.theme-light .titlebar-brand {
+  color: #17152a;
+}
+
+html.theme-light .window-control {
+  color: #626071;
+}
+
+html.theme-light .window-control:hover {
+  color: #17152a;
+  background: #eceaf4;
 }
 
 html.theme-light input,

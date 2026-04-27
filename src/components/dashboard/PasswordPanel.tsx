@@ -111,40 +111,51 @@ export function PasswordPanel({ status, onSetup, onChange, onReset, onToast }: P
         {status?.migrationRequired && <p className="warning-text">检测到默认密码，请立即修改。</p>}
       </div>
       {!status?.passwordSet ? (
-        <div className="form-stack">
-          <input type="password" value={password} onChange={(event) => setPassword(event.currentTarget.value)} placeholder="新密码，至少 8 位且包含多类字符" />
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <label className="form-inline">
+            <strong>新密码</strong>
+            <input type="password" value={password} onChange={(event) => setPassword(event.currentTarget.value)} placeholder="至少 8 位且包含多类字符" />
+            <button type="button" onClick={submitSetup} disabled={!canSubmit}>设置密码</button>
+          </label>
           {pwdForStrength && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12 }}>
-              <div style={{ flex: 1, height: 4, borderRadius: 2, background: "#e4e0ef" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, paddingLeft: 132 }}>
+              <div style={{ flex: 1, maxWidth: 320, height: 4, borderRadius: 2, background: "#e4e0ef" }}>
                 <div style={{ height: "100%", borderRadius: 2, background: strength.color, width: `${(strength.score / 5) * 100}%`, transition: "width 0.2s" }} />
               </div>
               <span style={{ color: strength.color }}>{strength.label}</span>
             </div>
           )}
-          <button type="button" onClick={submitSetup} disabled={!canSubmit}>设置密码</button>
         </div>
       ) : (
-        <div className="settings-grid">
-          <div className="form-stack">
-            <strong style={{ fontSize: 13 }}>修改密码</strong>
-            <input type="password" value={oldPassword} onChange={(event) => setOldPassword(event.currentTarget.value)} placeholder="当前密码" />
-            <input type="password" value={newPassword} onChange={(event) => setNewPassword(event.currentTarget.value)} placeholder="新密码" />
-            {newPassword && (
-              <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12 }}>
-                <div style={{ flex: 1, height: 4, borderRadius: 2, background: "#e4e0ef" }}>
-                  <div style={{ height: "100%", borderRadius: 2, background: strength.color, width: `${(strength.score / 5) * 100}%`, transition: "width 0.2s" }} />
-                </div>
-                <span style={{ color: strength.color }}>{strength.label}</span>
-              </div>
-            )}
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <strong style={{ fontSize: 13 }}>修改密码</strong>
+          <label className="form-inline">
+            <span>当前密码</span>
+            <input type="password" value={oldPassword} onChange={(event) => setOldPassword(event.currentTarget.value)} placeholder="输入当前密码" />
+          </label>
+          <label className="form-inline">
+            <span>新密码</span>
+            <input type="password" value={newPassword} onChange={(event) => setNewPassword(event.currentTarget.value)} placeholder="输入新密码" />
             <button type="button" onClick={submitChange} disabled={!newPassword || strength.score < 3}>修改密码</button>
-          </div>
-          <div className="form-stack">
-            <strong style={{ fontSize: 13 }}>恢复码重置</strong>
+          </label>
+          {newPassword && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, paddingLeft: 132 }}>
+              <div style={{ flex: 1, maxWidth: 320, height: 4, borderRadius: 2, background: "#e4e0ef" }}>
+                <div style={{ height: "100%", borderRadius: 2, background: strength.color, width: `${(strength.score / 5) * 100}%`, transition: "width 0.2s" }} />
+              </div>
+              <span style={{ color: strength.color }}>{strength.label}</span>
+            </div>
+          )}
+          <strong style={{ fontSize: 13, marginTop: 4 }}>恢复码重置</strong>
+          <label className="form-inline">
+            <span>恢复码</span>
             <input value={recoveryCode} onChange={(event) => setRecoveryCode(event.currentTarget.value)} placeholder="本地恢复码" />
-            <input type="password" value={newPassword} onChange={(event) => setNewPassword(event.currentTarget.value)} placeholder="新密码" />
+          </label>
+          <label className="form-inline">
+            <span>新密码</span>
+            <input type="password" value={newPassword} onChange={(event) => setNewPassword(event.currentTarget.value)} placeholder="输入新密码" />
             <button type="button" onClick={submitReset} disabled={!recoveryCode || !newPassword}>重置密码</button>
-          </div>
+          </label>
         </div>
       )}
       {issuedCode && <p className="recovery-code">恢复码：{issuedCode}</p>}

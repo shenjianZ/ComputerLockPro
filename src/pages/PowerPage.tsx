@@ -38,16 +38,16 @@ export function PowerPage() {
         <div className="panel-heading">
           <h2>电源计划</h2>
         </div>
-        <div className="settings-grid">
-          <label className="form-stack">
-            <strong style={{ fontSize: 13 }}>电源动作</strong>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <label className="form-inline">
+            <strong>电源动作</strong>
             <select value={powerAction} onChange={(event) => setPowerAction(event.currentTarget.value)}>
               <option value="shutdown">倒计时关机</option>
               <option value="sleep">倒计时休眠</option>
             </select>
           </label>
-          <label className="form-stack">
-            <strong style={{ fontSize: 13 }}>倒计时（分钟）</strong>
+          <label className="form-inline">
+            <strong>倒计时（分钟）</strong>
             <input type="number" min="1" value={delayMinutes} onChange={(event) => setDelayMinutes(Number(event.currentTarget.value))} />
           </label>
         </div>
@@ -61,9 +61,9 @@ export function PowerPage() {
         <div className="panel-heading">
           <h2>自动化规则</h2>
         </div>
-        <div className="settings-grid">
-          <label className="form-stack">
-            <strong style={{ fontSize: 13 }}>规则条件</strong>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <label className="form-inline">
+            <strong>规则条件</strong>
             <select value={ruleCondition} onChange={(event) => setRuleCondition(event.currentTarget.value)}>
               <option value="idle">空闲时长</option>
               <option value="time">指定时间</option>
